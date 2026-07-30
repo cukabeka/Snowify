@@ -92,7 +92,7 @@
             <h3 data-i18n="sidebar.playlists">Playlists</h3>
           </button>
           <div class="sidebar-header-actions">
-            <button class="icon-btn" id="btn-spotify-import" data-i18n-title="common.importCsv" title="Import CSV">
+            <button class="icon-btn" id="btn-spotify-import" data-i18n-title="common.importFromSpotify" title="Import from Spotify">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>
             </button>
             <button class="icon-btn" id="btn-create-playlist" data-i18n-title="common.createPlaylist" title="Create playlist">
@@ -218,7 +218,7 @@
           <h1 data-i18n="library.title">Your Library</h1>
           <div class="library-header-actions">
             <button class="btn-setting-action" id="btn-lib-create-playlist-top" data-i18n="library.createPlaylist">Create playlist</button>
-            <button class="btn-setting-action" id="btn-lib-spotify-import" data-i18n="common.importCsv">Import CSV</button>
+            <button class="btn-setting-action" id="btn-lib-spotify-import" data-i18n="common.importFromSpotify">Import from Spotify</button>
           </div>
         </div>
         <div id="library-content" class="track-list">
@@ -1186,22 +1186,40 @@
   <!-- ═══════ Spotify Import Modal ═══════ -->
   <div id="spotify-modal" class="modal-overlay hidden">
     <div class="modal-box spotify-modal-box">
-      <h3 id="spotify-modal-title" data-i18n="spotify.title">Import CSV Playlists</h3>
+      <h3 id="spotify-modal-title" data-i18n="spotify.title">Import from Spotify</h3>
       <div id="spotify-step-url" class="spotify-step">
-        <p class="spotify-step-desc" data-i18n="spotify.desc">Export playlists as CSV using <a href="#" id="spotify-exportify-link">tunemymusic.com/transfer</a>, then import the files here.</p>
-        <div class="spotify-link-import">
-          <label class="spotify-link-label" for="spotify-playlist-url-input" data-i18n="spotify.playlistLinkLabel">Paste public Spotify playlist link</label>
-          <div class="spotify-link-row">
+        <!-- Primary: Link Import -->
+        <div class="spotify-primary-section">
+          <div class="spotify-section-header">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#1db954"><circle cx="12" cy="12" r="10"/><path d="M9 14l3 3 5-7" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+            <span data-i18n="spotify.linkImportTitle">Paste a Spotify Playlist Link</span>
+          </div>
+          <p class="spotify-section-desc">Import any public Spotify playlist instantly. Snowify will fetch and match all tracks.</p>
+          <div class="spotify-link-import">
             <input class="spotify-link-input" id="spotify-playlist-url-input" type="url" spellcheck="false" autocomplete="off" placeholder="https://open.spotify.com/playlist/..." />
             <button class="modal-btn modal-confirm spotify-link-import-btn" id="spotify-import-playlist-link" data-i18n="spotify.playlistLinkButton">Import Playlist</button>
           </div>
-          <p class="spotify-link-hint" data-i18n="spotify.playlistLinkHint">Public playlists only. Snowify will parse the link and match tracks using its existing search flow.</p>
         </div>
-        <button class="modal-btn spotify-pick-btn" id="spotify-pick-files">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          <span data-i18n="spotify.selectFiles">Select CSV Files</span>
-        </button>
-        <div id="spotify-file-list" class="spotify-file-list hidden"></div>
+
+        <!-- Divider -->
+        <div class="spotify-divider">
+          <span data-i18n="common.or">or</span>
+        </div>
+
+        <!-- Secondary: CSV Fallback -->
+        <div class="spotify-secondary-section">
+          <div class="spotify-section-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span data-i18n="spotify.csvImportTitle">Import from CSV Export</span>
+          </div>
+          <p class="spotify-section-desc">Export your playlists from <a href="#" id="spotify-exportify-link">TuneMyMusic</a> and import the CSV files here.</p>
+          <button class="modal-btn spotify-pick-btn" id="spotify-pick-files">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span data-i18n="spotify.selectFiles">Select CSV Files</span>
+          </button>
+          <div id="spotify-file-list" class="spotify-file-list hidden"></div>
+        </div>
+
         <p class="spotify-error hidden" id="spotify-error"></p>
         <div class="modal-buttons">
           <button class="modal-btn modal-cancel" id="spotify-cancel" data-i18n="spotify.cancel">Cancel</button>
