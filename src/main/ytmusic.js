@@ -660,7 +660,7 @@ function register(ipcMain, ctx) {
   });
 
   // Generic HTTP GET helper for renderer-side plugins (bypasses CORS).
-  // Only returns JSON responses; returns null on any failure.
+  // Supports JSON and HTML responses for allowlisted hosts.
   ipcMain.handle('net:httpGet', async (_event, rawUrl, reqHeaders = {}) => {
     try {
       const https = require('https');
@@ -669,6 +669,7 @@ function register(ipcMain, ctx) {
       const HTTP_GET_ALLOWLIST = new Set([
         'api.github.com',
         'raw.githubusercontent.com',
+        'open.spotify.com',
       ]);
       if (!HTTP_GET_ALLOWLIST.has(parsed.hostname)) throw new Error('Host is not allowed');
 
@@ -698,7 +699,7 @@ function register(ipcMain, ctx) {
           method: 'GET',
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'Accept': 'application/json',
+            'Accept': parsed.hostname === 'open.spotify.com' ? 'text/html,application/xhtml+xml' : 'application/json',
             'Accept-Language': 'en',
             ...safeHeaders,
           },
@@ -706,8 +707,13 @@ function register(ipcMain, ctx) {
           let data = '';
           res.on('data', chunk => { data += chunk; });
           res.on('end', () => {
-            try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
-            catch (_) { resolve({ status: res.statusCode, body: null }); }
+            const contentType = (res.headers['content-type'] || '').toLowerCase();
+            if (contentType.includes('application/json')) {
+              try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
+              catch (_) { resolve({ status: res.statusCode, body: null }); }
+              return;
+            }
+            resolve({ status: res.statusCode, body: data, contentType });
           });
         });
         req.on('error', reject);
