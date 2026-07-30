@@ -33,6 +33,18 @@ function stripHtmlTags(value) {
   return decodeHtmlEntities(String(value || '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 }
 
+function formatImportPlaylistName(playlistName, creatorName) {
+  const importDate = new Intl.DateTimeFormat('de-DE', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+
+  const safeName = normalizeText(playlistName) || 'Spotify Playlist';
+  const safeCreator = normalizeText(creatorName) || 'Unknown';
+  return `${safeName} | ${safeCreator} | ${importDate}`;
+}
+
 function parseSpotifyPlaylistUrl(url) {
   if (typeof url !== 'string') return null;
   const trimmed = url.trim();
@@ -118,12 +130,17 @@ function findPlaylistNameInObject(node, playlistId, seen = new Set()) {
 function extractPlaylistNameFromHtml(html, playlistId) {
   if (!html || typeof html !== 'string') return null;
 
+  const creatorMatch = html.match(/<meta[^>]+name=["']music:creator["'][^>]+content=["']([^"']+)["'][^>]*>/i);
+  const creatorName = creatorMatch?.[1]
+    ? creatorMatch[1].split('/').filter(Boolean).pop()?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    : '';
+
   const nextDataMatch = html.match(/<script[^>]+id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i);
   if (nextDataMatch) {
     try {
       const parsed = JSON.parse(nextDataMatch[1]);
       const found = findPlaylistNameInObject(parsed, playlistId);
-      if (found) return found;
+      if (found) return formatImportPlaylistName(found, creatorName);
     } catch (_) {}
   }
 
@@ -138,7 +155,7 @@ function extractPlaylistNameFromHtml(html, playlistId) {
         const candidateId = typeof item?.['@id'] === 'string' ? item['@id'] : '';
         const name = normalizeText(item?.name || item?.['name']);
         if (name && (candidateUrl.includes(playlistId) || candidateId.includes(playlistId))) {
-          return name;
+          return formatImportPlaylistName(name, creatorName);
         }
       }
     } catch (_) {}
@@ -147,7 +164,7 @@ function extractPlaylistNameFromHtml(html, playlistId) {
   const ogTitleMatch = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["'][^>]*>/i);
   if (ogTitleMatch) {
     const title = normalizeText(ogTitleMatch[1]);
-    if (title) return title;
+    if (title) return formatImportPlaylistName(title, creatorName);
   }
 
   return null;
@@ -170,8 +187,9 @@ function extractTracksFromHtml(html) {
     const end = i + 1 < rowStarts.length ? rowStarts[i + 1] : html.length;
     const rowHtml = html.slice(start, end);
 
-    const titleMatch = rowHtml.match(/aria-label=["']([^"']+)["']/i);
-    const title = titleMatch ? decodeHtmlEntities(titleMatch[1]) : '';
+    const titleBlockMatch = rowHtml.match(/<p[^>]*data-encore-id=["']listRowTitle["'][^>]*>([\s\S]*?)<\/p>/i);
+    const titleCandidate = titleBlockMatch ? stripHtmlTags(titleBlockMatch[1]) : '';
+    const title = titleCandidate && titleCandidate.toLowerCase() !== 'more' ? titleCandidate : '';
 
     const artistMatches = [...rowHtml.matchAll(/data-testid=["']internal-artist-link["'][^>]*>([\s\S]*?)<\/a>/gi)]
       .map(m => stripHtmlTags(m[1]))
@@ -279,7 +297,7 @@ function resetModalUi(modal, stepSelect, stepProgress, errorEl, fileListEl, star
 }
 
 async function runImportFlow(playlists, helpers) {
-  const { createPlaylist, renderPlaylists, renderLibrary, modal, stepSelect, stepProgress, errorEl, startBtn, trackList, progressFill, progressText, progressCount, setModalTitle, setDoneButtonsVisible, cleanup, showImportSummary } = helpers;
+  const { createPlaylist, renderPlaylists, renderLibrary, modal, stepSelect, stepProgress, errorEl, fileListEl, startBtn, trackList, progressFill, progressText, progressCount, setModalTitle, setDoneButtonsVisible, cleanup, showImportSummary } = helpers;
   const pendingPlaylists = playlists || [];
   if (!pendingPlaylists.length) return;
 
@@ -580,6 +598,7 @@ export function openSpotifyImport({ createPlaylist, renderPlaylists, renderLibra
           stepSelect,
           stepProgress,
           errorEl,
+          fileListEl,
           startBtn,
           trackList,
           progressFill,
@@ -623,6 +642,7 @@ export function openSpotifyImport({ createPlaylist, renderPlaylists, renderLibra
         stepSelect,
         stepProgress,
         errorEl,
+        fileListEl,
         startBtn,
         trackList,
         progressFill,
