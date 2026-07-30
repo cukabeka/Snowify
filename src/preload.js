@@ -88,7 +88,6 @@ contextBridge.exposeInMainWorld('snowify', {
   // Spotify import (CSV)
   spotifyPickCsv: () => ipcRenderer.invoke('spotify:pickCsv'),
   spotifyMatchTrack: (title, artist) => ipcRenderer.invoke('spotify:matchTrack', title, artist),
-  spotifyImportLogo: () => ipcRenderer.invoke('spotify:getLogo'),
   httpGet: (url, headers) => ipcRenderer.invoke('net:httpGet', url, headers),
 
   // Windows thumbbar

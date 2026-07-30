@@ -187,15 +187,6 @@ function register(ipcMain, ctx) {
     } catch (err) { console.error('Spotify match error:', err); return null; }
   });
 
-  // Return the spotify-metadata plugin logo as data URL for the import button icon.
-  ipcMain.handle('spotify:getLogo', async () => {
-    const logoPath = path.join(__dirname, '..', '..', 'plugins', 'spotify-metadata', 'logo.png');
-    try {
-      const data = fs.readFileSync(logoPath);
-      return `data:image/png;base64,${data.toString('base64')}`;
-    } catch { return null; }
-  });
-
   // Playlist export CSV
   ipcMain.handle('playlist:exportCsv', async (_event, name, tracks) => {
     const result = await dialog.showSaveDialog(ctx.mainWindow, {

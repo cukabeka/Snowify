@@ -734,16 +734,6 @@ $('#btn-import-folder-playlist')?.addEventListener('click', async () => {
   showPlaylistDetail(playlist, false);
   callbacks.switchView('playlist');
 });
-const spotifyImportIcon = $('#spotify-import-icon');
-const spotifyLibImportIcon = $('#spotify-lib-import-icon');
-if (spotifyImportIcon || spotifyLibImportIcon) {
-  window.snowify.spotifyImportLogo().then(url => {
-    if (url) {
-      if (spotifyImportIcon) spotifyImportIcon.src = url;
-      if (spotifyLibImportIcon) spotifyLibImportIcon.src = url;
-    }
-  }).catch(() => {});
-}
 $('#btn-spotify-import').addEventListener('click', () => openSpotifyImport({ createPlaylist, renderPlaylists, renderLibrary, showPlaylistDetail }));
 $('#btn-lib-spotify-import')?.addEventListener('click', () => openSpotifyImport({ createPlaylist, renderPlaylists, renderLibrary, showPlaylistDetail }));
 
