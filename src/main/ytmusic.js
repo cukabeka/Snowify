@@ -665,6 +665,29 @@ function register(ipcMain, ctx) {
     throw lastError;
   });
 
+  // Search YouTube for a track and return its thumbnail URL via yt-dlp.
+  // Used to lazily enrich imported tracks that lack cover art.
+  ipcMain.handle('yt:searchThumbnail', async (_event, title, artist) => {
+    if (!title) return null;
+    const query = `ytsearch1:${title}${artist ? ' ' + artist : ''}`;
+    try {
+      const { execFile } = require('child_process');
+      const out = await new Promise((resolve, reject) => {
+        execFile(getYtDlpPath(), ['--dump-json', '--no-warnings', '--no-playlist', '--no-check-certificates', query], { timeout: 15000 }, (err, stdout, stderr) => {
+          if (err) return reject(stderr?.trim() || err.message);
+          resolve(stdout.trim());
+        });
+      });
+      if (!out) return null;
+      const data = JSON.parse(out.split('\n')[0]);
+      const thumb = data.thumbnail || data.thumbnails?.[0]?.url || '';
+      return thumb || null;
+    } catch (err) {
+      console.error('yt:searchThumbnail error:', err);
+      return null;
+    }
+  });
+
   // Generic HTTP GET helper for renderer-side plugins (bypasses CORS).
   // Supports JSON and HTML responses for allowlisted hosts.
   ipcMain.handle('net:httpGet', async (_event, rawUrl, reqHeaders = {}) => {

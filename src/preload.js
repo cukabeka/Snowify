@@ -88,6 +88,7 @@ contextBridge.exposeInMainWorld('snowify', {
   // Spotify import (CSV)
   spotifyPickCsv: () => ipcRenderer.invoke('spotify:pickCsv'),
   spotifyMatchTrack: (title, artist) => ipcRenderer.invoke('spotify:matchTrack', title, artist),
+  spotifyImportLogo: () => ipcRenderer.invoke('spotify:getLogo'),
   httpGet: (url, headers) => ipcRenderer.invoke('net:httpGet', url, headers),
 
   // Windows thumbbar
@@ -144,6 +145,9 @@ contextBridge.exposeInMainWorld('snowify', {
 
   // Track info (for deep links)
   getTrackInfo: (videoId) => ipcRenderer.invoke('yt:getTrackInfo', videoId),
+
+  // Thumbnail search for imported tracks without cover art
+  getSearchThumbnail: (title, artist) => ipcRenderer.invoke('yt:searchThumbnail', title, artist),
 
   // Marketplace themes
   getInstalledMarketplaceThemes: () => ipcRenderer.invoke('themes:getInstalled'),

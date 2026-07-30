@@ -85,7 +85,7 @@ function _initEngine() {
   engine = window.DualAudioEngine(audioA, audioB, {
     getState: () => state,
     getStreamUrl: async (url, q) => {
-      const videoId = url.includes('watch?v=') ? new URL(url).searchParams.get('v') : null;
+      const videoId = url && url.includes('watch?v=') ? new URL(url).searchParams.get('v') : null;
       if (videoId) {
         const cached = prefetchCache.getCachedPath(videoId);
         if (cached) return pathToFileUrl(cached);
@@ -158,6 +158,21 @@ function _initPrefetchCache() {
 
 export function getPrefetchCache() { return prefetchCache; }
 
+// ─── Lazy thumbnail fetch for tracks without cover art ─────────────────────
+
+async function _lazyFetchThumbnail(track) {
+  try {
+    const thumb = await window.snowify.getSearchThumbnail(track.title, track.artist);
+    if (!thumb || track.thumbnail) return;
+    track.thumbnail = thumb;
+    const npThumb = $('#np-thumbnail');
+    if (npThumb && state.queue[state.queueIndex]?.id === track.id) {
+      npThumb.src = resolveImageUrl(thumb);
+    }
+    callbacks.saveState();
+  } catch (_) {}
+}
+
 // ─── Module-level initialisation ─────────────────────────────────────────────
 // Runs synchronously when this module is first imported.
 _initEngine();
@@ -211,6 +226,7 @@ export async function playTrack(track) {
     addToRecent(track);
     updateDiscordPresence(track);
     callbacks.maybeEnrichTrackMeta(track);
+    if (!track.thumbnail && !track.isLocal && !track.url) _lazyFetchThumbnail(track);
     renderQueue();
     updatePositionState();
     callbacks.saveState();

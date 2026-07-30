@@ -270,6 +270,8 @@
   "spotify.playlistLinkButton": "Playlist'i içe aktar",
   "spotify.invalidPlaylistUrl": "Lütfen geçerli bir Spotify çalma listesi URL'si girin.",
   "spotify.importError": "Bu çalma listesi içe aktarılamadı.",
+  "spotify.andMore": "ve {{count}} daha fazla",
+  "spotify.ok": "OK",
   "common.or": "veya",
   "changelog.title": "Yenilikler",
   "changelog.loading": "Değişiklik günlüğü yükleniyor...",

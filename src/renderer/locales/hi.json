@@ -270,6 +270,8 @@
   "spotify.playlistLinkButton": "प्लेलिस्ट इम्पोर्ट करें",
   "spotify.invalidPlaylistUrl": "कृपया एक मान्य Spotify प्लेलिस्ट URL दर्ज करें।",
   "spotify.importError": "यह प्लेलिस्ट इम्पोर्ट नहीं की जा सकी।",
+  "spotify.andMore": "और {{count}} और",
+  "spotify.ok": "OK",
   "common.or": "या",
   "changelog.title": "नया क्या है",
   "changelog.loading": "चेंजलॉग लोड हो रहा है...",

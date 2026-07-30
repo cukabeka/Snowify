@@ -291,6 +291,8 @@
   "spotify.playlistLinkButton": "Import Playlist",
   "spotify.invalidPlaylistUrl": "Please enter a valid Spotify playlist URL.",
   "spotify.importError": "Could not import that playlist.",
+  "spotify.andMore": "and {{count}} more",
+  "spotify.ok": "Done",
   "common.or": "or",
   "changelog.title": "What's New",
   "changelog.loading": "Loading changelog...",

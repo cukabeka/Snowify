@@ -270,6 +270,8 @@
   "spotify.playlistLinkButton": "Importa playlist",
   "spotify.invalidPlaylistUrl": "Inserisci un URL valido per la playlist Spotify.",
   "spotify.importError": "Impossibile importare questa playlist.",
+  "spotify.andMore": "e {{count}} altri",
+  "spotify.ok": "OK",
   "common.or": "o",
   "changelog.title": "Novità",
   "changelog.loading": "Caricamento registro modifiche...",

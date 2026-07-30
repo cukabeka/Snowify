@@ -5,6 +5,7 @@
  * injected when the function is called.  See library.js for the call-site.
  */
 
+import state from './state.js';
 import { escapeHtml, showToast } from './utils.js';
 import { callbacks } from './callbacks.js';
 
@@ -297,7 +298,7 @@ function resetModalUi(modal, stepSelect, stepProgress, errorEl, fileListEl, star
 }
 
 async function runImportFlow(playlists, helpers) {
-  const { createPlaylist, renderPlaylists, renderLibrary, modal, stepSelect, stepProgress, errorEl, fileListEl, startBtn, trackList, progressFill, progressText, progressCount, setModalTitle, setDoneButtonsVisible, cleanup, showImportSummary } = helpers;
+  const { createPlaylist, renderPlaylists, renderLibrary, showPlaylistDetail, modal, stepSelect, stepProgress, errorEl, fileListEl, startBtn, trackList, progressFill, progressText, progressCount, setModalTitle, setDoneButtonsVisible, cleanup, showImportSummary } = helpers;
   const pendingPlaylists = playlists || [];
   if (!pendingPlaylists.length) return;
 
@@ -333,6 +334,7 @@ async function runImportFlow(playlists, helpers) {
 
   let totalImported = 0;
   let totalPlaylists = 0;
+  let lastPlaylistId = null;
   const allFailedTracks = [];
 
   for (let pi = 0; pi < pendingPlaylistsRef.length; pi++) {
@@ -387,6 +389,22 @@ async function runImportFlow(playlists, helpers) {
       }
       return makeFallbackTrack(track);
     };
+
+    async function _enrichThumbnails(tracks) {
+      const needsArt = tracks.filter(t => !t.thumbnail && (t.title || t.artist));
+      for (let i = 0; i < needsArt.length; i++) {
+        if (cancelState.value) return;
+        const t = needsArt[i];
+        try {
+          const thumb = await window.snowify.getSearchThumbnail(t.title, t.artist);
+          if (thumb && !t.thumbnail) {
+            t.thumbnail = thumb;
+            callbacks.saveState();
+          }
+        } catch (_) {}
+        if (i % 5 === 4) await new Promise(r => setTimeout(r, 300));
+      }
+    }
 
     for (let i = 0; i < total; i += BATCH_SIZE) {
       if (cancelState.value) break;
@@ -452,6 +470,8 @@ async function runImportFlow(playlists, helpers) {
       renderLibrary();
       totalImported += matched;
       totalPlaylists++;
+      lastPlaylistId = playlist.id;
+      _enrichThumbnails(playlist.tracks);
     }
 
     allFailedTracks.push(...failedTracks);
@@ -476,20 +496,44 @@ async function runImportFlow(playlists, helpers) {
     showToast(I18n.t('toast.noTracksMatched'));
   }
 
-  if (allFailedTracks.length) {
-    trackList.innerHTML = `<div class="spotify-failed-header">${I18n.t('spotify.failedToMatch', { count: allFailedTracks.length })}</div>` +
-      allFailedTracks.map(t =>
-        `<div class="spotify-track-item unmatched"><span class="spotify-track-status"><svg class="cross" width="16" height="16" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></span><span class="spotify-track-title">${escapeHtml(t.title)}</span><span class="spotify-track-artist">${escapeHtml(t.artist)}</span></div>`
-      ).join('');
+  const SHOW_TRACKS_MAX = 30;
+  const allMatchedTracks = [];
+  for (const pl of pendingPlaylistsRef) {
+    const playlist = state.playlists.find(p => p.id === lastPlaylistId);
+    if (playlist) {
+      allMatchedTracks.push(...playlist.tracks.slice(0, SHOW_TRACKS_MAX));
+    }
+  }
+  const showTrackCount = Math.min(SHOW_TRACKS_MAX, allMatchedTracks.length);
+  if (showTrackCount || allFailedTracks.length) {
+    const rows = [];
+    for (let i = 0; i < showTrackCount; i++) {
+      const t = allMatchedTracks[i];
+      rows.push(`<div class="spotify-track-item matched"><span class="spotify-track-status"><svg class="check" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 12.5l-4-4 1.4-1.4 2.6 2.6 5.6-5.6 1.4 1.4-7 7z"/></svg></span><span class="spotify-track-title">${escapeHtml(t.title)}</span><span class="spotify-track-artist">${escapeHtml(t.artist)}</span></div>`);
+    }
+    if (totalImported > SHOW_TRACKS_MAX) {
+      rows.push(`<div class="spotify-track-item"><span class="spotify-track-status"></span><span class="spotify-track-title" style="opacity:0.6">${I18n.t('spotify.andMore', { count: totalImported - SHOW_TRACKS_MAX })}</span></div>`);
+    }
+    for (const t of allFailedTracks.slice(0, 10)) {
+      rows.push(`<div class="spotify-track-item unmatched"><span class="spotify-track-status"><svg class="cross" width="16" height="16" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></span><span class="spotify-track-title">${escapeHtml(t.title)}</span><span class="spotify-track-artist">${escapeHtml(t.artist)}</span></div>`);
+    }
+    if (allFailedTracks.length > 10) {
+      rows.push(`<div class="spotify-track-item"><span class="spotify-track-status"></span><span class="spotify-track-title" style="opacity:0.6">${I18n.t('spotify.andMore', { count: allFailedTracks.length - 10 })}</span></div>`);
+    }
+    trackList.innerHTML = rows.join('');
     trackList.scrollTop = 0;
   } else {
     trackList.innerHTML = '';
   }
 
+  $('#spotify-done').textContent = I18n.t('spotify.ok');
   setDoneButtonsVisible(true);
   $('#spotify-done').onclick = () => {
     cleanup();
-    resetModalUi(modal, stepSelect, stepProgress, errorEl, fileListEl, startBtn);
+    if (lastPlaylistId) {
+      const pl = state.playlists.find(p => p.id === lastPlaylistId);
+      if (pl) showPlaylistDetail(pl, false);
+    }
   };
 }
 
@@ -499,7 +543,7 @@ async function runImportFlow(playlists, helpers) {
  * @param {{ createPlaylist, renderPlaylists, renderLibrary }} helpers
  *   Functions from library.js, injected to break the circular dependency.
  */
-export function openSpotifyImport({ createPlaylist, renderPlaylists, renderLibrary }) {
+export function openSpotifyImport({ createPlaylist, renderPlaylists, renderLibrary, showPlaylistDetail }) {
   const modal = $('#spotify-modal');
   const stepSelect = $('#spotify-step-url');
   const stepProgress = $('#spotify-step-progress');
@@ -597,6 +641,7 @@ export function openSpotifyImport({ createPlaylist, renderPlaylists, renderLibra
           createPlaylist,
           renderPlaylists,
           renderLibrary,
+          showPlaylistDetail,
           modal,
           stepSelect,
           stepProgress,
@@ -641,6 +686,7 @@ export function openSpotifyImport({ createPlaylist, renderPlaylists, renderLibra
         createPlaylist,
         renderPlaylists,
         renderLibrary,
+        showPlaylistDetail,
         modal,
         stepSelect,
         stepProgress,
