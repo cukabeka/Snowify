@@ -44,11 +44,11 @@ function createWindow(ctx) {
     ctx.tray = new Tray(icon);
     ctx.tray.setToolTip('Snowify');
     ctx.tray.setContextMenu(Menu.buildFromTemplate([
-      { label: 'Open Snowify', click: () => { ctx.mainWindow?.show(); ctx.mainWindow?.focus(); } },
+      { label: 'Open Snowify', click: () => { if (ctx.mainWindow && !ctx.mainWindow.isDestroyed()) { ctx.mainWindow.show(); ctx.mainWindow.focus(); } } },
       { type: 'separator' },
-      { label: 'Quit Snowify', click: () => { _forceQuit = true; ctx.mainWindow?.close(); } }
+      { label: 'Quit Snowify', click: () => { _forceQuit = true; if (ctx.mainWindow && !ctx.mainWindow.isDestroyed()) ctx.mainWindow.close(); } }
     ]));
-    ctx.tray.on('click', () => { ctx.mainWindow?.show(); ctx.mainWindow?.focus(); });
+    ctx.tray.on('click', () => { if (ctx.mainWindow && !ctx.mainWindow.isDestroyed()) { ctx.mainWindow.show(); ctx.mainWindow.focus(); } });
   }
 
   function destroyTray() {
@@ -74,9 +74,9 @@ function createWindow(ctx) {
     }
     e.preventDefault();
     ctx.mainWindow.webContents.send('app:before-close');
-    setTimeout(() => { _closeReady = true; ctx.mainWindow?.close(); }, 2000);
+    setTimeout(() => { _closeReady = true; if (ctx.mainWindow && !ctx.mainWindow.isDestroyed()) ctx.mainWindow.close(); }, 2000);
   });
-  _ipcMain.once('app:close-ready', () => { _closeReady = true; ctx.mainWindow?.close(); });
+  _ipcMain.once('app:close-ready', () => { _closeReady = true; if (ctx.mainWindow && !ctx.mainWindow.isDestroyed()) ctx.mainWindow.close(); });
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     const responseHeaders = { ...details.responseHeaders };

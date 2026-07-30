@@ -12,7 +12,7 @@ if (!gotLock) {
   app.quit();
 } else {
   app.on('second-instance', (_event, argv) => {
-    if (ctx.mainWindow) {
+    if (ctx.mainWindow && !ctx.mainWindow.isDestroyed()) {
       if (ctx.mainWindow.isMinimized()) ctx.mainWindow.restore();
       ctx.mainWindow.focus();
     }
@@ -37,7 +37,7 @@ function handleDeepLink(url) {
     const id = rest.join('/');
     if (!id || !['track', 'album', 'artist'].includes(type)) return;
     console.log(`Deep link: ${type}/${id}`);
-    if (ctx.mainWindow && ctx.mainWindow.webContents) {
+    if (ctx.mainWindow && !ctx.mainWindow.isDestroyed() && ctx.mainWindow.webContents) {
       ctx.mainWindow.webContents.send('app:deepLink', { type, id });
       if (ctx.mainWindow.isMinimized()) ctx.mainWindow.restore();
       ctx.mainWindow.focus();
