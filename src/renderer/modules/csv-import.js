@@ -369,20 +369,23 @@ async function runImportFlow(playlists, helpers) {
     const isElectronRuntime = typeof window !== 'undefined' && !!window.process?.versions?.electron;
     const canUseNativeMatch = isElectronRuntime && typeof window.snowify?.spotifyMatchTrack === 'function';
 
+    const makeFallbackTrack = (track) => ({
+      id: 'import_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      title: track.title,
+      artist: track.artist,
+      album: null,
+      duration: null,
+      durationMs: 0,
+      thumbnail: '',
+      url: null,
+    });
+
     const matchTrack = async (track) => {
       if (canUseNativeMatch) {
-        return window.snowify.spotifyMatchTrack(track.title, track.artist).catch(() => null);
+        const result = await window.snowify.spotifyMatchTrack(track.title, track.artist).catch(() => null);
+        if (result) return result;
       }
-      return {
-        id: null,
-        title: track.title,
-        artist: track.artist,
-        album: null,
-        duration: null,
-        durationMs: 0,
-        thumbnail: '',
-        url: null,
-      };
+      return makeFallbackTrack(track);
     };
 
     for (let i = 0; i < total; i += BATCH_SIZE) {

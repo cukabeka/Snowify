@@ -628,11 +628,17 @@ function register(ipcMain, ctx) {
 
     for (const source of activeSources) {
       if (source === 'youtube') {
-        const cacheKey = `audio:${videoUrl}:${fmt}`;
+        let targetUrl = videoUrl;
+        if (!targetUrl) {
+          const title = trackMeta?.title;
+          if (!title) continue;
+          targetUrl = `ytsearch1:${title}${trackMeta.artist ? ' ' + trackMeta.artist : ''}`;
+        }
+        const cacheKey = `audio:${targetUrl}:${fmt}`;
         const cached = getCachedUrl(cacheKey);
         if (cached) return cached;
         try {
-          const url = await runYtDlp(['-f', fmt, '--get-url', ...YT_FLAGS, videoUrl], 15000);
+          const url = await runYtDlp(['-f', fmt, '--get-url', ...YT_FLAGS, targetUrl], 15000);
           setCachedUrl(cacheKey, url);
           return url;
         } catch (err) {
