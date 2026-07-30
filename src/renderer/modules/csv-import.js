@@ -337,6 +337,40 @@ async function runImportFlow(playlists, helpers) {
   let lastPlaylistId = null;
   const allFailedTracks = [];
 
+  const _enrichThumbnails = async (tracks) => {
+    const needsArt = tracks.filter(t => !t.thumbnail && (t.title || t.artist));
+    if (!needsArt.length) return;
+    const startTime = Date.now();
+    progressText.textContent = I18n.t('spotify.fetchingCovers');
+    for (let i = 0; i < needsArt.length; i++) {
+      if (cancelState.value) return;
+      const t = needsArt[i];
+      try {
+        const thumb = await window.snowify.getSearchThumbnail(t.title, t.artist);
+        if (thumb && !t.thumbnail) {
+          t.thumbnail = thumb;
+          callbacks.saveState();
+        }
+      } catch (_) {}
+      const elapsed = Date.now() - startTime;
+      const avgPerItem = elapsed / (i + 1);
+      const remaining = Math.round((needsArt.length - i - 1) * avgPerItem / 1000);
+      progressCount.textContent = `${Math.min(i + 1, needsArt.length)} / ${needsArt.length}`;
+      progressFill.style.width = `${((i + 1) / needsArt.length) * 100}%`;
+      progressText.textContent = remaining > 0
+        ? `${I18n.t('spotify.fetchingCovers')} (~${remaining}s ${I18n.t('common.remaining')})`
+        : I18n.t('spotify.fetchingCovers');
+      if (i % 5 === 4) await new Promise(r => setTimeout(r, 300));
+    }
+    progressText.textContent = I18n.t('spotify.coversLoaded');
+    progressFill.style.width = '100%';
+    progressCount.textContent = '';
+    if (lastPlaylistId) {
+      const pl = state.playlists.find(p => p.id === lastPlaylistId);
+      if (pl) renderPlaylists();
+    }
+  };
+
   for (let pi = 0; pi < pendingPlaylistsRef.length; pi++) {
     if (cancelState.value) break;
     const pl = pendingPlaylistsRef[pi];
@@ -389,22 +423,6 @@ async function runImportFlow(playlists, helpers) {
       }
       return makeFallbackTrack(track);
     };
-
-    async function _enrichThumbnails(tracks) {
-      const needsArt = tracks.filter(t => !t.thumbnail && (t.title || t.artist));
-      for (let i = 0; i < needsArt.length; i++) {
-        if (cancelState.value) return;
-        const t = needsArt[i];
-        try {
-          const thumb = await window.snowify.getSearchThumbnail(t.title, t.artist);
-          if (thumb && !t.thumbnail) {
-            t.thumbnail = thumb;
-            callbacks.saveState();
-          }
-        } catch (_) {}
-        if (i % 5 === 4) await new Promise(r => setTimeout(r, 300));
-      }
-    }
 
     for (let i = 0; i < total; i += BATCH_SIZE) {
       if (cancelState.value) break;
