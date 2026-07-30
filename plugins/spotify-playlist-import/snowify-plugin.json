@@ -1,0 +1,12 @@
+{
+  "id": "spotify-playlist-import",
+  "name": "Spotify Playlist Import",
+  "version": "1.0.0",
+  "description": "Adds a library button for importing public Spotify playlist links directly into Snowify.",
+  "author": "Snowify Team",
+  "logoUrl": "logo.svg",
+  "category": "other",
+  "renderer": "renderer.js",
+  "styles": "styles.css",
+  "minAppVersion": "1.4.0"
+}

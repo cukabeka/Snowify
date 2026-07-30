@@ -15,9 +15,19 @@ import {
 import { getLikedSongsPlaylist, handlePlayNext, handleAddToQueue, startRadio } from './queue.js';
 import { renderTrackList, showContextMenu, removeContextMenu, findTrackAlternatives } from './context-menus.js';
 import { bindArtistLinks, openArtistPage } from './artist.js';
-import { openSpotifyImport } from './csv-import.js';
+import { openSpotifyImport, importSpotifyPlaylistLink } from './csv-import.js';
 
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
+
+function initSpotifyPlaylistImportBridge() {
+  window.SnowifySpotifyPlaylistImport = {
+    openModal: () => openSpotifyImport({ createPlaylist, renderPlaylists, renderLibrary }),
+    importFromUrl: async (url) => importSpotifyPlaylistLink(url, { createPlaylist, renderPlaylists, renderLibrary })
+  };
+}
+
+initSpotifyPlaylistImportBridge();
+
 
 // ─── Drag state (shared with context-menus via exports) ───────────────────────
 let _dragActive  = false;

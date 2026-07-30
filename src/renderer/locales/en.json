@@ -285,6 +285,11 @@
   "spotify.failedToMatch": "Failed to match ({{count}})",
   "spotify.notFound": "({{count}} not found)",
   "spotify.selectAtLeastOne": "Select at least one playlist",
+  "spotify.playlistLinkLabel": "Paste public Spotify playlist link",
+  "spotify.playlistLinkHint": "Public playlists only. Snowify will parse the link and match tracks using its existing search flow.",
+  "spotify.playlistLinkButton": "Import Playlist",
+  "spotify.invalidPlaylistUrl": "Please enter a valid Spotify playlist URL.",
+  "spotify.importError": "Could not import that playlist.",
   "changelog.title": "What's New",
   "changelog.loading": "Loading changelog...",
   "changelog.gotIt": "Got it",
@@ -561,7 +566,6 @@
   "plugins.themeApplied": "Theme applied",
   "plugins.themeActive": "Active",
   "plugins.themeApply": "Apply",
-
   "settings.sources": "Sources",
   "settings.songSources": "Song sources",
   "settings.songSourcesDesc": "First enabled source is primary; others are used as automatic fallbacks.",
@@ -581,7 +585,6 @@
   "settings.devWrappedDesc": "Open the Year in Review overlay without waiting for year-end.",
   "settings.devWrappedBtn": "Preview →",
   "toast.atLeastOneSource": "At least one source must stay enabled.",
-
   "wrapped.your": "Your",
   "wrapped.wrapped": "Wrapped",
   "wrapped.introSub": "Your year in music",
@@ -610,7 +613,6 @@
   "wrapped.outroNotes": "notes played",
   "wrapped.outroTitle": "Thanks for\nlistening.",
   "wrapped.outroSub": "Here's to",
-
   "replace.title": "Find Other Versions",
   "replace.searching": "Searching for versions...",
   "replace.noResults": "No alternative versions found",

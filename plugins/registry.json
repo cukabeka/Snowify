@@ -52,6 +52,19 @@
       "path": "song-downloader",
       "branch": "main",
       "official": true
+    },
+    {
+      "id": "spotify-playlist-import",
+      "name": "Spotify Playlist Import",
+      "description": "Imports public Spotify playlists by parsing the playlist link and matching tracks into Snowify.",
+      "author": "Snowify Team",
+      "version": "1.0.0",
+      "icon": "🎧",
+      "category": "other",
+      "repo": "cukabeka/Snowify",
+      "path": "plugins/spotify-playlist-import",
+      "branch": "main",
+      "official": true
     }
   ],
   "themes": [

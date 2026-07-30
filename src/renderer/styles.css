@@ -4434,6 +4434,58 @@ body.audio-playing .play-btn {
   margin-bottom: 16px;
   line-height: 1.5;
 }
+.spotify-link-import {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+}
+.spotify-link-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.spotify-link-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.spotify-link-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.24);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+.spotify-link-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.spotify-link-import-btn {
+  padding: 10px 14px;
+  white-space: nowrap;
+  background: #1db954;
+  color: #fff;
+  border-color: #1db954;
+}
+.spotify-link-import-btn:hover {
+  background: #1ed760;
+  border-color: #1ed760;
+}
+.spotify-link-hint {
+  font-size: 12px;
+  color: var(--text-subdued);
+  line-height: 1.4;
+}
 .spotify-step-desc a {
   color: var(--accent);
   text-decoration: none;

@@ -8,6 +8,8 @@ plugins/*/
 # Track official local plugins (pushed to monorepo separately)
 !plugins/soundcloud-source/
 !plugins/spotify-metadata/
+!plugins/spotify-playlist-import/
+!plugins/spotify-playlist-import/**
 build-dir/
 builddir/
 repo/

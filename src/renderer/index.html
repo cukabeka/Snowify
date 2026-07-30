@@ -1188,7 +1188,15 @@
     <div class="modal-box spotify-modal-box">
       <h3 id="spotify-modal-title" data-i18n="spotify.title">Import CSV Playlists</h3>
       <div id="spotify-step-url" class="spotify-step">
-        <p class="spotify-step-desc">Export playlists as CSV using <a href="#" id="spotify-exportify-link">tunemymusic.com/transfer</a>, then import the files here.</p>
+        <p class="spotify-step-desc" data-i18n="spotify.desc">Export playlists as CSV using <a href="#" id="spotify-exportify-link">tunemymusic.com/transfer</a>, then import the files here.</p>
+        <div class="spotify-link-import">
+          <label class="spotify-link-label" for="spotify-playlist-url-input" data-i18n="spotify.playlistLinkLabel">Paste public Spotify playlist link</label>
+          <div class="spotify-link-row">
+            <input class="spotify-link-input" id="spotify-playlist-url-input" type="url" spellcheck="false" autocomplete="off" placeholder="https://open.spotify.com/playlist/..." />
+            <button class="modal-btn modal-confirm spotify-link-import-btn" id="spotify-import-playlist-link" data-i18n="spotify.playlistLinkButton">Import Playlist</button>
+          </div>
+          <p class="spotify-link-hint" data-i18n="spotify.playlistLinkHint">Public playlists only. Snowify will parse the link and match tracks using its existing search flow.</p>
+        </div>
         <button class="modal-btn spotify-pick-btn" id="spotify-pick-files">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           <span data-i18n="spotify.selectFiles">Select CSV Files</span>
